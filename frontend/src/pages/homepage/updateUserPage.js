@@ -17,7 +17,15 @@ const UpdateUserPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await axios.put(`${uri}/`, { id, name, email });
+      const { data } = await axios.put(
+        `${uri}/`,
+        { id, name },
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("jwt"),
+          },
+        }
+      );
       history.push("/");
       toast(data.message);
     } catch (error) {
@@ -28,15 +36,18 @@ const UpdateUserPage = () => {
   useEffect(() => {
     const getUser = async () => {
       try {
-        const { data } = await axios.get(`${uri}/${id}`);
+        const { data } = await axios.get(`${uri}/${id}`, {
+          headers: { Authorization: "Bearer " + localStorage.getItem("jwt") },
+        });
         setName(data.results.map((result) => result.name));
-        setEmail(data.results.map((result) => result.email));
+        setEmail(data.results.map((result) => result.username));
       } catch (error) {
         console.log(error.message);
       }
     };
     getUser();
   }, [id, uri]);
+
   return (
     <div>
       <form onSubmit={handleSubmit}>
@@ -53,7 +64,7 @@ const UpdateUserPage = () => {
             />
           </label>
         </div>
-        <div>
+        {/* <div>
           <label>
             Email:
             <input
@@ -64,7 +75,7 @@ const UpdateUserPage = () => {
               onChange={(e) => setEmail(e.target.value)}
             />
           </label>
-        </div>
+        </div> */}
 
         <div>
           <button type="submit">Submit</button>

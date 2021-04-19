@@ -16,7 +16,9 @@ const HomePage = () => {
   useEffect(() => {
     const getAllUsers = async () => {
       try {
-        const { data } = await axios.get(`${uri}/`);
+        const { data } = await axios.get(`${uri}/`, {
+          headers: { Authorization: "Bearer " + localStorage.getItem("jwt") },
+        });
         setResults(data.results);
         setRender(false);
       } catch (error) {
@@ -26,13 +28,16 @@ const HomePage = () => {
     getAllUsers();
   }, [uri, render]);
 
-  const addUserHandler = () => {
-    history.push("/users/new");
+  const logoutHandler = () => {
+    localStorage.clear();
+    history.push("/login");
   };
 
   const deleteUserHandler = async (id) => {
     try {
-      const { data } = await axios.delete(`${uri}/${id}`);
+      const { data } = await axios.delete(`${uri}/${id}`, {
+        headers: { Authorization: "Bearer " + localStorage.getItem("jwt") },
+      });
       toast(data.message);
       setRender(true);
     } catch (error) {
@@ -45,38 +50,51 @@ const HomePage = () => {
   };
 
   return (
-    <div>
-      <div className="heading">
-        <h1>Users Table</h1>
-        <button onClick={addUserHandler}>Add User</button>
+    <div className="homepage container">
+      <div className="heading container mb-4 d-flex justify-content-between align-items-center">
+        <h1 className="mt-4 mb-5 text-center">Users Table</h1>
+        <button onClick={logoutHandler} className="btn btn-primary btn-lg">
+          <i className="fa fa-sign-out"></i>
+        </button>
       </div>
-
-      <table>
-        <thead>
-          <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Email</th>
-          </tr>
-        </thead>
-        <tbody>
-          {results.map((result) => (
-            <tr key={result.id}>
-              <td>{result.id}</td>
-              <td>{result.name}</td>
-              <td>{result.email}</td>
-              <td>
-                <button onClick={() => editUserHandler(result.id)}>Edit</button>
-              </td>
-              <td>
-                <button onClick={() => deleteUserHandler(result.id)}>
-                  Delete
-                </button>
-              </td>
+      <div className="table">
+        <table className="text-center container table table-hover table-bordered">
+          <thead className="thead-dark">
+            <tr>
+              <th>Id</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Edit</th>
+              <th>Delete</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {results.map((result) => (
+              <tr key={result.id}>
+                <td>{result.id}</td>
+                <td>{result.name}</td>
+                <td>{result.email}</td>
+                <td>
+                  <button
+                    onClick={() => editUserHandler(result.id)}
+                    className="btn btn-success"
+                  >
+                    <i className="fa fa-edit"></i>
+                  </button>
+                </td>
+                <td>
+                  <button
+                    onClick={() => deleteUserHandler(result.id)}
+                    className="btn btn-danger"
+                  >
+                    <i className="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
