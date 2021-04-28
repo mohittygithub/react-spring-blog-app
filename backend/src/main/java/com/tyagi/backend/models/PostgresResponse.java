@@ -6,20 +6,29 @@ import java.util.List;
 
 
 public class PostgresResponse {
-    
-    private int statusCode;
+    private int id;
+	private int statusCode;
     private String message;
     private boolean success;
-    private List<Object> results;
+    private List<? extends Object> results;
 
     public PostgresResponse(){}
 
-    public PostgresResponse(int statusCode, String message, boolean success, List<Object> results){
-        this.statusCode = statusCode;
+    public PostgresResponse(int id, int statusCode, String message, boolean success, List<? extends Object> results){
+        this.id = id;
+		this.statusCode = statusCode;
         this.message = message;
         this.success = success;
         this.results = results;
     }
+
+	public int getId() {
+		return this.id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
 
 	public int getStatusCode() {
 		return this.statusCode;
@@ -45,7 +54,7 @@ public class PostgresResponse {
 		this.success = success;
 	}
 
-	public List<Object> getResults() {
+	public List<? extends Object> getResults() {
 		return this.results;
 	}
 

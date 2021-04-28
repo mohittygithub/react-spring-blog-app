@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.tyagi.backend.models.CustomUserDetails;
 import com.tyagi.backend.services.CustomUserDetailsService;
-import com.tyagi.backend.utils.JwtUtils;
+import com.tyagi.backend.utils.JwtUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,12 +25,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	private CustomUserDetailsService customUserDetailsService;
 
 	@Autowired
-	private JwtUtils jwtUtil;
+	private JwtUtil jwtUtil;
 
 	@Override
-	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-
 		final String authorizationHeader = request.getHeader("Authorization");
 
 		String userName = null;
@@ -44,7 +43,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 		if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-			CustomUserDetails userDetails = (CustomUserDetails) this.customUserDetailsService.loadUserByUsername(userName);
+			CustomUserDetails userDetails = this.customUserDetailsService.loadUserByUsername(userName);
 
 			if (jwtUtil.validateToken(jwt, userDetails)) {
 				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
@@ -55,6 +54,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			}
 		}
 			
-		chain.doFilter(request, response);
+		filterChain.doFilter(request, response);
+		
 	}
 }

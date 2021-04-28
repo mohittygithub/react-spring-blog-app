@@ -1,9 +1,19 @@
 package com.tyagi.backend.models;
 
+
+
+import java.util.Date;
+import java.util.List;
+
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 @Entity
 @Table(name = "users")
@@ -17,7 +27,16 @@ public class User {
     private String password;
     private Boolean active;
     private String roles;
+	private Date created;
 
+	@Lob
+	private byte[] image;
+
+	@OneToMany(fetch = FetchType.LAZY, mappedBy = "user")
+	private List<Post> posts;
+
+	
+	/* Getters and Setters*/
 
 	public int getId() {
 		return this.id;
@@ -67,5 +86,29 @@ public class User {
 		this.roles = roles;
 	}
 
+	@JsonManagedReference
+	public List<Post> getPosts() {
+		return this.posts;
+	}
+
+	public void setPosts(List<Post> posts) {
+		this.posts = posts;
+	}
+
+	public Date getCreated() {
+		return this.created;
+	}
+
+	public void setCreated(Date created) {
+		this.created = created;
+	}
+
+	public byte[] getImage() {
+		return this.image;
+	}
+
+	public void setImage(byte[] image) {
+		this.image = image;
+	}
 
 }

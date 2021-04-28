@@ -8,7 +8,7 @@ import com.tyagi.backend.models.User;
 import com.tyagi.backend.repositories.UserRepository;
 import com.tyagi.backend.services.CustomUserDetailsService;
 import com.tyagi.backend.services.PostgresService;
-import com.tyagi.backend.utils.JwtUtils;
+import com.tyagi.backend.utils.JwtUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api")
+@RequestMapping("/api/users")
 public class UserController {
 
     @Autowired
@@ -38,7 +38,7 @@ public class UserController {
     AuthenticationManager authenticationManager;
 
     @Autowired
-    JwtUtils jwtUtils;
+    JwtUtil jwtUtil;
 
     @Autowired
     UserRepository userRepository;
@@ -49,34 +49,38 @@ public class UserController {
     // Rest API to authenticate the user and return jwt token in response
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest request) throws Exception{
+        
         try{
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken
             (request.getUsername(), request.getPassword()));
+            
         }catch(BadCredentialsException ex){
             System.out.println(ex.getMessage());
             throw new Exception("Incorrect uername or password.", ex);
         }
         final UserDetails userDetails = customUserDetailsService.loadUserByUsername(request.getUsername());
-        final String jwt = jwtUtils.generateToken(userDetails);
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+        final String jwt = jwtUtil.generateToken(userDetails);
+        
+        String username = userDetails.getUsername();
+        return ResponseEntity.ok(new AuthenticationResponse(jwt, username));
     }
 
     // getting all users from postgres
-    @GetMapping("/")
+    @GetMapping("")
     public PostgresResponse getAllUsers(){
         return postgresService.getAllUsers();
     }
 
     // getting a user by id from postgres
-    @GetMapping("/{id}")
-    public PostgresResponse findUserById(@PathVariable Integer id){
-        return postgresService.findUserById(id);
+    @GetMapping("/{username}")
+    public PostgresResponse findUserByUsername(@PathVariable String username){
+        return postgresService.findUserByUsername(username);
     }
 
     // saving a new user to postgres
     @PostMapping("/register")
     public PostgresResponse createUser(@RequestBody User user){
-        if(user.getName() == null || user.getUsername() == null || user.getPassword() == null)
+        if(user.getName() == null && user.getUsername() == null && user.getPassword() == null)
             return new PostgresResponse(404, "Incomplete data recieved", false, null);
         return postgresService.createUser(user);
     }
